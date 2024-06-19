@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    volumes:
+      -  ./mongodb_data:/mongodb_data/db
+      -  ./mongo.conf:/etc/mongo.conf
+    ports:
+      - "27017:27017"
+    environment:
+        MONGO_INITDB_DATABASE: so1_p1_mongo
+    command: mongod --config /etc/mongo.conf
+    networks:
+      - red_docker
+  backend:
+    image: sosa028/so1_p1_backend
+    container_name: so1_p1_backend
+    privileged: true
+    pid: host
+    restart: always
+    volumes:
+      - type: bind
+        source: /proc
+        target: /proc
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    networks:
+      - red_docker  
+  
+  frontend:
+    image: sosa028/so1_p1_frontend
+    container_name: so1_p1_frontend
+    privileged: true
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    networks:
+      - red_docker
+
+networks:
+  red_docker:
+    external: true
+    
