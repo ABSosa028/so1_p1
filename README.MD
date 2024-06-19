@@ -21,7 +21,7 @@ Este módulo del kernel de Linux se encarga de monitorear la memoria y el uso de
 #include <linux/fs.h>
 #include <linux/sched/loadavg.h>
 #include <linux/sched/signal.h>  // para for_each_process()
-#include <linux/cred.h>          // para __kuid_val()```
+#include <linux/cred.h>          // para __kuid_val()´´´
 
 ##Constantes
 
