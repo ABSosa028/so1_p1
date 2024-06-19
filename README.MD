@@ -128,9 +128,9 @@ func KillProcess(context *gin.Context) {
     context.BindJSON(&req)
     cmd := exec.Command("kill", "-9", strconv.Itoa(req.Pid))
     err := cmd.Run()
-    if err != nil {
+    if (err != nil) {
         context.IndentedJSON(http.StatusOK, err)
-        return
+        return;
     }
     context.IndentedJSON(http.StatusOK, "Proceso terminado")
 }
@@ -180,67 +180,4 @@ Este código es un componente de una aplicación React que monitorea el uso de m
 import './App.css';
 import PieChart from './components/pie_chart/pie_chart.jsx';
 import {useState, useEffect} from 'react';
-import TablaProcesos from './components/tabla_procesos/TablaProcesos.jsx';´´´
-
-Se importan los estilos CSS, los componentes PieChart y TablaProcesos, y los hooks useState y useEffect de React.
-
-##estados del componente
-
-const [mem, setMem] = useState(null);
-const [cpu, setCpu] = useState(null);
-const [data, setData] = useState(null);
-const [optsSim, setOptsSim] = useState([]);
-const [simActual, setSimActual] = useState(-1);
-
-##efectos
-useEffect(()=>{
-  const interval = setInterval(()=> get_datos(), 1000);
-  return () => clearInterval(interval);
-},[]);
-
-useEffect(()=>{
-  const interval = setInterval(()=> get_procesos(), 1000);
-  return () => clearInterval(interval);
-},[]);
-
-Estos useEffect configuran intervalos para llamar a las funciones get_datos y get_procesos cada segundo.
-
-##funciones principales
-function get_datos() {
-  fetch('/data')
-    .then((res) => res.json())
-    .then((d) => {
-      console.log(d);
-      d = JSON.parse(d);
-
-      const nMem = {
-        labels:["En uso", "Libre"],
-        label: "%",
-        data: [d.memoria_ocupada, 100-d.memoria_ocupada],
-        color: ["#6488ea","#282c34"],
-        title: "Memoria Ram"
-      };
-
-      setMem(nMem);
-
-      let utilizacion = 100*d.cpu_utilizado/2;
-      utilizacion = Math.round(utilizacion*100)/100;
-      let liberada = Math.round((100-utilizacion)*100)/100;
-
-      if(utilizacion > 100){
-        utilizacion = 100;
-        liberada = 0;
-      }
-
-      const nCpu = {
-        labels:["En uso", "Libre"],
-        label: "%",
-        data: [utilizacion, liberada],
-        color: ["#6488ea","#282c34"],
-        title: "CPU"
-      };
-      setCpu(nCpu);
-
-    }).catch(error => {console.log(error);});
-}
-
+import TablaProcesos from './components/tabla_procesos/TablaProcesos.jsx';
