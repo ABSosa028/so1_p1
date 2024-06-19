@@ -1,12 +1,83 @@
-# Manual Técnico: Módulo del Kernel de Linux
+# Manual Técnico: Módulo del Kernel de Linux y Plataforma de Monitoreo
 
-## Descripción
-Este módulo del kernel de Linux se encarga de monitorear la memoria y el uso del CPU, así como de listar los procesos y sus hijos. Fue desarrollado para el laboratorio de sistemas operativos 1.
+## Descripción del Proyecto
+Este proyecto tiene como objetivo implementar un sistema de monitoreo de recursos y gestión de procesos en una máquina virtual Ubuntu Server 22.04 utilizando KVM. El sistema incluye módulos del kernel para obtener información del sistema, una API en Go para manejar datos y un frontend para la visualización.
 
-### Información del Módulo
-- **Licencia:** GPL
-- **Descripción:** Módulo de sistema para laboratorio de sistemas operativos 1
-- **Autor:** Dave965 ABSosa028
+## Arquitectura Empleada
+### Componentes Principales
+
+1. **Módulos del Kernel**
+   - **Módulo de RAM**: Este módulo se encarga de monitorear el uso de la memoria RAM y se aloja en el directorio `/proc/ram_so1_jun2024`. Utiliza la librería `<linux/mm.h>` para obtener información del sistema.
+   - **Módulo de CPU**: Este módulo monitorea el uso del CPU y se aloja en el directorio `/proc/cpu_so1_1s2024`. Utiliza la librería `<linux/sched.h>` para obtener información del sistema.
+
+2. **API en Go**
+   - Desarrollada usando el framework Gin.
+   - Funciones principales:
+     - **StartProcess**: Inicia un proceso que ejecuta `sleep infinity` y devuelve el PID.
+     - **KillProcess**: Termina un proceso dado su PID.
+   - Conexión a una base de datos MongoDB para almacenar datos de monitoreo.
+   - Manejo de CORS para permitir solicitudes desde el frontend.
+
+3. **Base de Datos**
+   - Utiliza MongoDB dentro de un contenedor Docker.
+   - Almacena datos sobre procesos, uso de memoria RAM y CPU.
+   - Persistencia garantizada mediante un volumen Docker.
+
+4. **Frontend**
+   - Desarrollado en un framework de elección del estudiante.
+   - Características:
+     - **Monitoreo en Tiempo Real**: Gráficas de uso de memoria RAM y CPU.
+     - **Tabla de Procesos**: Lista de procesos y sus hijos, con botones para crear y eliminar procesos.
+
+5. **Docker Compose**
+   - Utilizado para orquestar los contenedores de la plataforma de monitoreo.
+   - Facilita la gestión y el despliegue de múltiples contenedores.
+
+## Módulos de Kernel
+### Módulo de RAM
+- **Descripción**: Monitorea el uso de la memoria RAM.
+- **Ubicación**: `/proc/ram_so1_jun2024`
+- **Características**:
+  - Utiliza `<linux/mm.h>` para obtener información de memoria.
+  - Proporciona datos sobre memoria total, libre y usada.
+
+### Módulo de CPU
+- **Descripción**: Monitorea el uso del CPU.
+- **Ubicación**: `/proc/cpu_so1_1s2024`
+- **Características**:
+  - Utiliza `<linux/sched.h>` para obtener información del uso del CPU.
+  - Proporciona datos sobre la carga promedio del CPU.
+
+### Ejemplo de Código del Módulo de RAM
+```c
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/mm.h>
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
+
+const long megabyte = 1024 * 1024;
+
+struct sysinfo si;
+
+static void init_meminfo(void) {
+    si_meminfo(&si);
+}
+
+static int escribir_archivo(struct seq_file *archivo, void *v) {
+    init_meminfo();
+    unsigned long memoria_ocupada = ((si.totalram - si.freeram) * si.mem_unit) / megabyte;
+    unsigned long totalram_mb = (si.totalram * si.mem_unit) / megabyte;
+
+    seq_printf(archivo, "{ \"memoria_ocupada\": %lu, \"memoria_total\": %lu }",
+               memoria_ocupada, totalram_mb);
+    return 0;
+}
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Modulo de RAM, Laboratorio sistemas operativos 1");
+MODULE_AUTHOR("Dave965");
+
 
 ## Código Fuente
 
